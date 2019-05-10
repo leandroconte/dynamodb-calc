@@ -13,6 +13,8 @@ import java.util.Map;
  * Calculation of json using the AWS DynamoDB strategy.
  *
  * This class calculates the total size in bytes of a json based on the syntax of a DynamoDB Item.
+ * <p>For more information about how DynamoDB calculates items size:</p>
+ * @see <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/CapacityUnitCalculations.html">DynamoDB Item Sizes</a>
  */
 public class ItemSizeCalculation {
 
@@ -73,30 +75,54 @@ public class ItemSizeCalculation {
     }
 
     private static String getTestJSON() {
-        return "{\n" +
-                "    \"Item\": {\n" +
-                "        \"active\": {\n" +
-                "            \"BOOL\": true\n" +
-                "        }," +
-                "        \"te\": {\n" +
-                "            \"BOOL\": false\n" +
-                "        }," +
-                "        \"name\": {\n" +
-                "            \"S\": \"Leandro\"\n" +
-                "        }," +
-                "        \"time\": {\n" +
-                "            \"N\": \"23.90000\"\n" +
-                "        }," +
-                "        \"publisher\": {\n" +
-                "            \"M\": {\n" +
-                "                \"year\": {\n" +
-                "                    \"N\": \"2019\"\n" +
-                "                },\n" +
-                "                \"name\": {\n" +
-                "                    \"S\": \"Oreilly\"\n" +
-                "                }\n" +
-                "            }\n" +
+        return "{" +
+                "    \"Item\": {" +
+//                "\"songs\": {" +
+//                "            \"L\": [" +
+//                "                {" +
+//                "                    \"M\": {" +
+//                "                        \"name\": {" +
+//                "                            \"S\": \"Money for nothing\"" +
+//                "                        }," +
+//                "                        \"time\": {" +
+//                "                            \"N\": \"386\"" +
+//                "                        }" +
+//                "                    }" +
+//                "                }," +
+//                "                {" +
+//                "                    \"M\": {" +
+//                "                        \"name\": {" +
+//                "                            \"S\": \"Wind of Change\"" +
+//                "                        }," +
+//                "                        \"time\": {" +
+//                "                            \"N\": \"156\"" +
+//                "                        }" +
+//                "                    }" +
+//                "                }" +
+//                "            ]" +
+//                "        }," +
+//                "        \"active\": {" +
+//                "            \"BOOL\": true" +
+//                "        }," +
+//                "        \"te\": {" +
+//                "            \"BOOL\": false" +
+//                "        }," +
+//                "        \"name\": {" +
+//                "            \"S\": \"Leandro\"" +
+//                "        }," +
+                "        \"time\": {" +
+                "            \"N\": \"23.90000\"" +
                 "        }" +
+//                "        \"publisher\": {" +
+//                "            \"M\": {" +
+//                "                \"year\": {" +
+//                "                    \"N\": \"2019\"" +
+//                "                }," +
+//                "                \"name\": {" +
+//                "                    \"S\": \"Oreilly\"" +
+//                "                }" +
+//                "            }" +
+//                "        }" +
                 "}}";
     }
 
@@ -120,11 +146,29 @@ public class ItemSizeCalculation {
         } else if (value.isJsonObject()) {
             return calcObject(rootKey, jsonElement);
         } else if (value.isJsonArray()) {
-            throw new UnsupportedOperationException("Can't calculate list objects yet");
+            return calcList(rootKey, value);
         } else {
             throw new IllegalArgumentException("Format for Json not found");
         }
+    }
 
+    /**
+     * Returns the total bytes for List type element and its nested elements.
+     * The calculation includes the rootKey.
+     *
+     * @param rootKey The root key of the object.
+     * @param jsonElement The element to be calculated.
+     *
+     * @return the total in bytes.
+     */
+    private int calcList(String rootKey, JsonElement jsonElement) {
+        int totalBytes = 0;
+        for (JsonElement elementArray : jsonElement.getAsJsonArray()) {
+            for (Map.Entry<String, JsonElement> element : elementArray.getAsJsonObject().entrySet()) {
+                totalBytes += getNestTotalByte(rootKey, element);
+            }
+        }
+        return totalBytes;
     }
 
     /**
