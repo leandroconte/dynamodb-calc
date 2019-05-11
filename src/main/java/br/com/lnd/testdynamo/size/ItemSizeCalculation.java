@@ -22,7 +22,6 @@ public class ItemSizeCalculation {
     private static final String BOOL = "BOOL";
     private static final String NUMBER = "N";
     private static final String STRING = "S";
-    private static final String LIST = "L";
 
     public static void main(String... args) {
         String json;
@@ -225,7 +224,7 @@ public class ItemSizeCalculation {
             case BOOL: return 1;
             case NUMBER: return calcNumber(element);
             case STRING: return calcString(element.getAsString());
-            default: throw new IllegalArgumentException("The value of key [" + key + "] is an incorrect format.");
+            default: throw new IllegalArgumentException("Incorrect format for value of key [" + key + "]");
         }
     }
 
