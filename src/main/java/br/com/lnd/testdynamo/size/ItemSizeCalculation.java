@@ -6,8 +6,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Calculation of json using the AWS DynamoDB strategy.
@@ -24,11 +24,25 @@ public class ItemSizeCalculation {
     private static final String STRING = "S";
     private static final String LIST = "L";
 
-    public static void main(String[] args) {
-        long startedInMilli = new Date().getTime();
-        int totalBytes = new ItemSizeCalculation().calculateInBytes(getTestJSON());
-        System.out.println("Total de bytes: " + totalBytes);
-        System.out.println("In time: " + (new Date().getTime() - startedInMilli) + "ms");
+    public static void main(String... args) {
+        String json;
+
+        if (args.length == 0) {
+            json = getPipeInput();
+        } else {
+            json = args[0];
+        }
+
+        System.out.println(new ItemSizeCalculation().calculateInBytes(json));
+    }
+
+    private static String getPipeInput() {
+        StringBuilder json = new StringBuilder();
+        Scanner sc = new Scanner(System.in);
+        while(sc.hasNextLine()) {
+            json.append(sc.nextLine());
+        }
+        return json.toString();
     }
 
     /**
@@ -77,52 +91,52 @@ public class ItemSizeCalculation {
     private static String getTestJSON() {
         return "{" +
                 "    \"Item\": {" +
-//                "\"songs\": {" +
-//                "            \"L\": [" +
-//                "                {" +
-//                "                    \"M\": {" +
-//                "                        \"name\": {" +
-//                "                            \"S\": \"Money for nothing\"" +
-//                "                        }," +
-//                "                        \"time\": {" +
-//                "                            \"N\": \"386\"" +
-//                "                        }" +
-//                "                    }" +
-//                "                }," +
-//                "                {" +
-//                "                    \"M\": {" +
-//                "                        \"name\": {" +
-//                "                            \"S\": \"Wind of Change\"" +
-//                "                        }," +
-//                "                        \"time\": {" +
-//                "                            \"N\": \"156\"" +
-//                "                        }" +
-//                "                    }" +
-//                "                }" +
-//                "            ]" +
-//                "        }," +
-//                "        \"active\": {" +
-//                "            \"BOOL\": true" +
-//                "        }," +
-//                "        \"te\": {" +
-//                "            \"BOOL\": false" +
-//                "        }," +
-//                "        \"name\": {" +
-//                "            \"S\": \"Leandro\"" +
-//                "        }," +
+                "\"songs\": {" +
+                "            \"L\": [" +
+                "                {" +
+                "                    \"M\": {" +
+                "                        \"name\": {" +
+                "                            \"S\": \"Money for nothing\"" +
+                "                        }," +
+                "                        \"time\": {" +
+                "                            \"N\": \"386\"" +
+                "                        }" +
+                "                    }" +
+                "                }," +
+                "                {" +
+                "                    \"M\": {" +
+                "                        \"name\": {" +
+                "                            \"S\": \"Wind of Change\"" +
+                "                        }," +
+                "                        \"time\": {" +
+                "                            \"N\": \"156\"" +
+                "                        }" +
+                "                    }" +
+                "                }" +
+                "            ]" +
+                "        }," +
+                "        \"active\": {" +
+                "            \"BOOL\": true" +
+                "        }," +
+                "        \"te\": {" +
+                "            \"BOOL\": false" +
+                "        }," +
+                "        \"name\": {" +
+                "            \"S\": \"Leandro\"" +
+                "        }," +
                 "        \"time\": {" +
                 "            \"N\": \"23.90000\"" +
+                "        }," +
+                "        \"publisher\": {" +
+                "            \"M\": {" +
+                "                \"year\": {" +
+                "                    \"N\": \"2019\"" +
+                "                }," +
+                "                \"name\": {" +
+                "                    \"S\": \"Oreilly\"" +
+                "                }" +
+                "            }" +
                 "        }" +
-//                "        \"publisher\": {" +
-//                "            \"M\": {" +
-//                "                \"year\": {" +
-//                "                    \"N\": \"2019\"" +
-//                "                }," +
-//                "                \"name\": {" +
-//                "                    \"S\": \"Oreilly\"" +
-//                "                }" +
-//                "            }" +
-//                "        }" +
                 "}}";
     }
 
@@ -162,10 +176,10 @@ public class ItemSizeCalculation {
      * @return the total in bytes.
      */
     private int calcList(String rootKey, JsonElement jsonElement) {
-        int totalBytes = 0;
+        int totalBytes = calcString(rootKey) + 3;
         for (JsonElement elementArray : jsonElement.getAsJsonArray()) {
             for (Map.Entry<String, JsonElement> element : elementArray.getAsJsonObject().entrySet()) {
-                totalBytes += getNestTotalByte(rootKey, element);
+                totalBytes += getNestTotalByte(null, element);
             }
         }
         return totalBytes;
