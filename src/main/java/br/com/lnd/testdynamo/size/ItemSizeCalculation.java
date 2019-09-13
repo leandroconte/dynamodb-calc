@@ -5,7 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -29,10 +34,35 @@ public class ItemSizeCalculation {
         if (args.length == 0) {
             json = getPipeInput();
         } else {
-            json = args[0];
+            Path path = Paths.get(args[0]);
+
+            if (Files.isRegularFile(path)) {
+                json = getFile(path);
+            } else {
+                json = args[0];
+            }
         }
 
+
+
         System.out.println(new ItemSizeCalculation().calculateInBytes(json));
+    }
+
+    private static String getFile(Path path) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+
+            // read line by line
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+
+        } catch (IOException e) {
+            System.err.format("IOException: %s%n", e);
+        }
+
+        return sb.toString();
     }
 
     private static String getPipeInput() {
@@ -77,6 +107,7 @@ public class ItemSizeCalculation {
      * @return the total in bytes.
      */
     private int calculateInBytes(String json) {
+
         JsonObject asJsonObject = new JsonParser().parse(json).getAsJsonObject();
         JsonObject rootItem = asJsonObject.getAsJsonObject("Item");
         int totalBytes = 0;
