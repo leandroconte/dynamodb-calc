@@ -87,58 +87,6 @@ public class ItemSizeCalculation {
         return totalBytes;
     }
 
-    private static String getTestJSON() {
-        return "{" +
-                "    \"Item\": {" +
-                "\"songs\": {" +
-                "            \"L\": [" +
-                "                {" +
-                "                    \"M\": {" +
-                "                        \"name\": {" +
-                "                            \"S\": \"Money for nothing\"" +
-                "                        }," +
-                "                        \"time\": {" +
-                "                            \"N\": \"386\"" +
-                "                        }" +
-                "                    }" +
-                "                }," +
-                "                {" +
-                "                    \"M\": {" +
-                "                        \"name\": {" +
-                "                            \"S\": \"Wind of Change\"" +
-                "                        }," +
-                "                        \"time\": {" +
-                "                            \"N\": \"156\"" +
-                "                        }" +
-                "                    }" +
-                "                }" +
-                "            ]" +
-                "        }," +
-                "        \"active\": {" +
-                "            \"BOOL\": true" +
-                "        }," +
-                "        \"te\": {" +
-                "            \"BOOL\": false" +
-                "        }," +
-                "        \"name\": {" +
-                "            \"S\": \"Leandro\"" +
-                "        }," +
-                "        \"time\": {" +
-                "            \"N\": \"23.90000\"" +
-                "        }," +
-                "        \"publisher\": {" +
-                "            \"M\": {" +
-                "                \"year\": {" +
-                "                    \"N\": \"2019\"" +
-                "                }," +
-                "                \"name\": {" +
-                "                    \"S\": \"Oreilly\"" +
-                "                }" +
-                "            }" +
-                "        }" +
-                "}}";
-    }
-
     /**
      * Returns the total bytes of the element and its nested elements.
      * The calculation includes the rootKey.
